@@ -2,6 +2,6 @@
   "bannerText": "✅ This is the first announcement. Make the text long enough to trigger marque.",
   "dialogTitle": "Hooray! First Announcement!",
   "dialogBody": "From today onwards we have announcement feature implemented!\n\nTell us about what you think.",
-  "startOn": "2023-01-01 00:00:00",
-  "endOn": "2023-12-31 00:00:00"
+  "startOn": "2022-01-01 00:00:00",
+  "endOn": "2022-12-31 00:00:00"
 }
