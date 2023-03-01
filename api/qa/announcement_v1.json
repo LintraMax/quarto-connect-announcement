@@ -1,7 +1,7 @@
 {
-  "bannerText": "✅ This is the first announcement. Make the text long enough to trigger marque.",
-  "dialogTitle": "Hooray! First Announcement!",
-  "dialogBody": "From today onwards we have announcement feature implemented!\n\nTell us about what you think.",
-  "startOn": "2021-01-01 00:00:00",
-  "endOn": "2021-12-01 00:00:00"
+  "bannerText": "Please be advised that there will be System Updates from 20-03-2023 (5:00PM) to 21-03-2022.",
+  "dialogTitle": "System Update Announcement",
+  "dialogBody": "Please be advised that there will be System Updates from 20-03-2023 (5:00PM) to 21-03-2022.",
+  "startOn": "2023-03-01 00:00:00",
+  "endOn": "2023-03-21 16:00:00"
 }
