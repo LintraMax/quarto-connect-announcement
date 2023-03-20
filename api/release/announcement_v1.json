@@ -1,7 +1,7 @@
 {
-  "bannerText": "Please be advised that there will be System Updates from 20-03-2023 (5:00PM) to 21-03-2023.",
-  "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please be advised that there will be System Updates from 20-03-2023 (5:00PM) to 21-03-2023.",
-  "startOn": "2023-03-01 00:00:00",
-  "endOn": "2023-03-21 16:00:00"
+  "bannerText": "A new version v2023.03.022 is available in the Play Store.",
+  "dialogTitle": "App Update Announcement",
+  "dialogBody": "Please update the app to the new version v2023.03.022.",
+  "startOn": "2023-03-21 00:00:00",
+  "endOn": "2023-03-22 16:00:00"
 }
