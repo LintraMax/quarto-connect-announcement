@@ -1,7 +1,7 @@
 {
   "bannerText": "A new version v2023.03.032 is available in the Play Store.",
   "dialogTitle": "App Update Announcement",
-  "dialogBody": "Please update the app to the new version v2023.03.032. Enhancement: 1) Face Recognition performance. \r\n2) Field Inspection records are revertible and removeable.",
+  "dialogBody": "Please update the app to the new version v2023.03.032.\r\nEnhancement:\r\n 1) Face Recognition performance. \r\n2) Field Inspection records are revertible and removeable.",
   "startOn": "2023-04-05 00:00:00",
   "endOn": "2023-04-07 16:00:00"
 }
