@@ -1,7 +1,7 @@
 {
-  "bannerText": "A new version v2023.08.046 is available in the Play Store.",
-  "dialogTitle": "App Update Announcement",
-  "dialogBody": "Please update the app to the new version v2023.08.046.",
-  "startOn": "2023-04-05 00:00:00",
-  "endOn": "2023-04-07 16:00:00"
+  "bannerText": "Please be advised that there will be System Updates on 20-11-2023 (5:00PM).",
+  "dialogTitle": "System Update Announcement",
+  "dialogBody": "Please be advised that there will be System Updates on 20-11-2023 (5:00PM).",
+  "startOn": "2023-11-01 00:00:00",
+  "endOn": "2023-11-20 16:00:00"
 }
