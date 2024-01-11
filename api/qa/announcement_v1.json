@@ -4,5 +4,5 @@
   "dialogBody": "Please be advised that there will be System Updates on 18-03-2024 (5:00PM).",
   "startOn": "2024-01-11 00:00:00",
   "endOn": "2024-03-19 16:00:00",
-  "minVersionCodeToDisableAnnouncement": "2403012"
+  "minVersionCodeToDisableAnnouncement": "2403011"
 }
