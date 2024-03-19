@@ -3,6 +3,6 @@
   "dialogTitle": "App Update Announcement",
   "dialogBody": "Please update the app to the new version v2024.03.025.",
   "startOn": "2024-03-01 00:00:00",
-  "endOn": "2024-03-19 00:00:00",
+  "endOn": "2024-03-20 00:00:00",
   "minVersionCodeToDisableAnnouncement": "2403025"
 }
