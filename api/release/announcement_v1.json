@@ -1,8 +1,8 @@
 {
-  "bannerText": "Please be advised that there will be System Updates on 22-07-2024 (5:00PM).",
-  "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please be advised that there will be System Updates on 22-07-2024 (5:00PM).",
-  "startOn": "2024-07-01 00:00:00",
-  "endOn": "2024-07-24 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2407018"
+  "bannerText": "Please update the app to the version v2024.07.028 or newer",
+  "dialogTitle": "App Update Announcement",
+  "dialogBody": "Please update the app to the version v2024.07.028 or newer",
+  "startOn": "2024-07-22 00:00:00",
+  "endOn": "2024-07-26 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2407028"
 }
