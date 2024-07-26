@@ -1,8 +1,8 @@
 {
-  "bannerText": "Please update the app to the version v2024.07.028 or newer",
+  "bannerText": "Please update the app to the version v2024.07.032 or newer",
   "dialogTitle": "App Update Announcement",
-  "dialogBody": "Please update the app to the version v2024.07.028 or newer",
+  "dialogBody": "Please update the app to the version v2024.07.032 or newer",
   "startOn": "2024-07-22 00:00:00",
-  "endOn": "2024-07-26 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2407028"
+  "endOn": "2024-07-27 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2407032"
 }
