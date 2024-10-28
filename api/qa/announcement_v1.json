@@ -1,8 +1,8 @@
 {
-  "bannerText": "Please be advised that there will be System Updates on 22-07-2024 (5:00PM).",
+  "bannerText": "Please be advised that there will be System Updates on 18-11-2024 (5:00PM).",
   "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please be advised that there will be System Updates on 22-07-2024 (5:00PM).",
-  "startOn": "2024-07-01 00:00:00",
-  "endOn": "2024-07-24 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2407018"
+  "dialogBody": "Please be advised that there will be System Updates on 18-11-2024 (5:00PM).",
+  "startOn": "2024-11-01 00:00:00",
+  "endOn": "2024-11-22 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2411001"
 }
