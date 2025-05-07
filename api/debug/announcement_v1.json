@@ -4,5 +4,6 @@
   "dialogBody": "From today onwards we have announcement feature implemented!\n\nTell us about what you think.",
   "startOn": "2023-11-23 00:00:00",
   "endOn": "2023-12-31 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2403004"
+  "minVersionCodeToDisableAnnouncement": "2403004",
+  "minVersionToEnableReminder": "2503018"
 }
