@@ -5,5 +5,5 @@
   "startOn": "2025-03-01 00:00:00",
   "endOn": "2025-03-24 00:00:00",
   "minVersionCodeToDisableAnnouncement": "2503001",
-  "minVersionCodeToEnableMasterSyncReminder": "2503018"
+  "minVersionCodeToEnableMasterSyncReminder": "2507006"
 }
