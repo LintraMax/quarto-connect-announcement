@@ -1,9 +1,9 @@
 {
-  "bannerText": "Please be advised that there will be System Updates on 17-03-2025 (5:00PM).",
+  "bannerText": "Please be advised that there will be System Updates on 21-07-2025 (5:00PM).",
   "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please be advised that there will be System Updates on 17-03-2025 (5:00PM).",
-  "startOn": "2025-03-01 00:00:00",
-  "endOn": "2026-03-24 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2503001",
-  "minVersionCodeToEnableMasterSyncReminder": "2507007"
+  "dialogBody": "Please be advised that there will be System Updates on 21-07-2025 (5:00PM).",
+  "startOn": "2025-07-01 00:00:00",
+  "endOn": "2025-07-28 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2507001",
+  "minVersionCodeToEnableMasterSyncReminder": "2507001"
 }
