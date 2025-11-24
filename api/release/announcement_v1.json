@@ -1,7 +1,7 @@
 {
-  "bannerText": "Please be advised that there will be System Updates on 24-11-2025 (5:00PM).",
+  "bannerText": "Please update the app to the version v2025.11.023 or newer.",
   "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please be advised that there will be System Updates on 24-11-2025 (5:00PM).",
+  "dialogBody": "Please update the app to the version v2025.11.023 or newer.",
   "startOn": "2025-11-01 00:00:00",
   "endOn": "2025-11-30 00:00:00",
   "minVersionCodeToDisableAnnouncement": "2511001",
