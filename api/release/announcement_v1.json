@@ -1,10 +1,10 @@
 {
-  "bannerText": "Please update the app to the version v2026.03.023 or newer.",
+  "bannerText": "Please update the app to the version v2026.03.029 or newer.",
   "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please update the app to the version v2026.03.023 or newer.",
+  "dialogBody": "Please update the app to the version v2026.03.029 or newer.",
   "startOn": "2026-03-01 00:00:00",
-  "endOn": "2026-04-07 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2603001",
+  "endOn": "2026-04-10 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2603029",
   "minVersionCodeToEnableMasterSyncReminder": "2603001"
 }
 
