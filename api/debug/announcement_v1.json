@@ -1,9 +1,9 @@
 {
-  "bannerText": "✅ This announcement will be disabled once your Quarto Connect app is updated to v2024.03.004.",
-  "dialogTitle": "Hooray! First Announcement!",
-  "dialogBody": "From today onwards we have announcement feature implemented!\n\nTell us about what you think.",
-  "startOn": "2023-11-23 00:00:00",
-  "endOn": "2023-12-31 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2403004",
-  "minVersionCodeToEnableMasterSyncReminder": "2507008"
+  "bannerText": "Please be advised that there will be System Updates on 20-07-2026 (5:00PM).",
+  "dialogTitle": "System Update Announcement",
+  "dialogBody": "Please be advised that there will be System Updates on 20-07-2026 (5:00PM).",
+  "startOn": "2026-07-01 00:00:00",
+  "endOn": "2026-08-31 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2607050",
+  "minVersionCodeToEnableMasterSyncReminder": "2607050"
 }
