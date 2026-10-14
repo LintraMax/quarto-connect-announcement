@@ -1,0 +1,32 @@
+{
+  "announcements": [
+    {
+      "id": "v202611_newest_first_face_scan",
+      "versionCode": 2611006,
+      "title": {
+        "en": "Face recognition shows newest scan first",
+        "ms": "Pengenalan Wajah memaparkan imbasan terbaharu dahulu",
+        "in": "Pengenalan Wajah menampilkan pindaian terbaru terlebih dahulu"
+      },
+      "body": {
+        "en": "Face recognition now shows the newest scanned worker first.\n\nWorkers you scan appear at the front of the row of faces and at the top of the Attendances list, instead of at the end.",
+        "ms": "Pengenalan Wajah kini memaparkan pekerja yang terbaharu diimbas dahulu.\n\nPekerja yang anda imbas akan muncul di hadapan baris wajah dan di bahagian atas senarai Kehadiran, dan bukan di bahagian akhir.",
+        "in": "Pengenalan Wajah kini menampilkan pekerja yang terbaru diimbas terlebih dahulu.\n\nPekerja yang Anda imbas akan muncul di depan baris wajah dan di bagian atas daftar Kehadiran, bukan di bagian akhir."
+      }
+    },
+    {
+      "id": "v202611_newest_first_list",
+      "versionCode": 2611005,
+      "title": {
+        "en": "Evacuation and Despatch show newest record first",
+        "ms": "Evakuasi dan Penghantaran memaparkan rekod terbaharu dahulu",
+        "in": "Evakuasi dan Penghantaran menampilkan catatan terbaru terlebih dahulu"
+      },
+      "body": {
+        "en": "The Evacuation and Despatch lists now show the newest record at the top.\n\nRecords you add appear at the top of the list instead of at the bottom.",
+        "ms": "Senarai Evakuasi dan Penghantaran kini memaparkan rekod terbaharu di bahagian atas.\n\nRekod yang anda tambah akan muncul di bahagian atas senarai dan bukan di bahagian bawah.",
+        "in": "Daftar Evakuasi dan Penghantaran kini menampilkan catatan terbaru di bagian atas.\n\nCatatan yang Anda tambahkan akan muncul di bagian atas daftar, bukan di bagian bawah."
+      }
+    }
+  ]
+}
