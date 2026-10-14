@@ -2,7 +2,7 @@
   "announcements": [
     {
       "id": "v202611_newest_first_face_scan",
-      "publishedOn": "2026-10-14 00:00:00",
+      "versionCode": 2611006,
       "title": {
         "en": "Face recognition shows newest scan first",
         "ms": "Pengenalan Wajah memaparkan imbasan terbaharu dahulu",
@@ -16,7 +16,7 @@
     },
     {
       "id": "v202611_newest_first_list",
-      "publishedOn": "2026-10-14 00:00:00",
+      "versionCode": 2611005,
       "title": {
         "en": "Evacuation and Despatch show newest record first",
         "ms": "Evakuasi dan Penghantaran memaparkan rekod terbaharu dahulu",

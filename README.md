@@ -39,8 +39,7 @@ Every announcement users can read back from **Announcements** in the app's side 
   "announcements": [
     {
       "id": "v202611_newest_first_list",
-      "publishedOn": "2026-10-14 00:00:00",
-      "minVersionCode": 2611013,
+      "versionCode": 2611005,
       "title": { "en": "...", "ms": "...", "in": "..." },
       "body": { "en": "...", "ms": "...", "in": "..." }
     }
@@ -49,11 +48,10 @@ Every announcement users can read back from **Announcements** in the app's side 
 ```
 
 - `id {string}` - Unique key of the announcement. Never reuse one.
-- `publishedOn {string}` - Shown from this date, format `yyyy-MM-dd HH:mm:ss` (UTC). A future date schedules it. The list is sorted newest first by this field.
-- `minVersionCode {number || absent}` - Optional. Hidden from app versions below this code, for announcements about a feature older versions do not have.
+- `versionCode {number}` - The app version the announcement belongs to, as a version code: `2611005` for v2026.11.005. The app groups the list under a header per version (`v2026.11.005`), newest version on top, and hides announcements from app versions below this code. Within one version, entries keep their order in this file.
 - `title`, `body {object}` - Text per app language: `en` (English), `ms` (Malay), `in` (Indonesian; `id` also accepted). A missing language falls back to `en`, so `en` is required. `body` supports multilines `
 `.
 
-An entry missing `id`, `publishedOn` or the English `title`/`body` is skipped. A badly formatted date makes the whole file unreadable, so the app keeps showing its last cached copy - check the date format before pushing.
+An entry missing `id`, `versionCode` or the English `title`/`body` is skipped. Invalid JSON makes the whole file unreadable, so the app keeps showing its last cached copy - validate the JSON before pushing.
 
 To add one, put a new entry in the `announcements` array of each variant you want it in.
