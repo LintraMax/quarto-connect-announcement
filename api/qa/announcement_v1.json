@@ -4,6 +4,6 @@
   "dialogBody": "Please be advised that there will be System Updates on 23-11-2026 (5:00PM).",
   "startOn": "2026-11-01 00:00:00",
   "endOn": "2026-11-30 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2611001",
-  "minVersionCodeToEnableMasterSyncReminder": "2611001"
+  "minVersionCodeToDisableAnnouncement": "2611016",
+  "minVersionCodeToEnableMasterSyncReminder": "2611016"
 }
