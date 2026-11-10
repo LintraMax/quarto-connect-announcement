@@ -1,13 +1,9 @@
 {
-  "bannerText": "Please update the app to the version v2026.07.034 or newer.",
+  "bannerText": "Please be advised that there will be System Updates on 23-11-2026 (5:00PM).",
   "dialogTitle": "System Update Announcement",
-  "dialogBody": "Please update the app to the version v2026.07.034 or newer.",
-  "startOn": "2026-07-01 00:00:00",
-  "endOn": "2026-08-31 00:00:00",
-  "minVersionCodeToDisableAnnouncement": "2607034",
-  "minVersionCodeToEnableMasterSyncReminder": "2607025"
+  "dialogBody": "Please be advised that there will be System Updates on 23-11-2026 (5:00PM).",
+  "startOn": "2026-11-01 00:00:00",
+  "endOn": "2026-11-30 00:00:00",
+  "minVersionCodeToDisableAnnouncement": "2611016",
+  "minVersionCodeToEnableMasterSyncReminder": "2611016"
 }
-
-
-
-
