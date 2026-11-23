@@ -19,4 +19,7 @@ jobs:
       - name: Validate source and check generated files are up to date
         run: node scripts/build.js --check
       - name: Check every api JSON file parses
-        run: for f in api/*/*.json; do node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || { echo "Invalid JSON: $f"; exit 1; }; done
+        run: |
+          for f in api/*/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || { echo "Invalid JSON: $f"; exit 1; }
+          done
