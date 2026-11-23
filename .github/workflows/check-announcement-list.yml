@@ -1,12 +1,12 @@
-name: Check announcements
+name: Check announcement list
 
-# Fails when src/announcements.json is invalid, or when the generated
+# Fails when src/announcement_list.json is invalid, or when the generated
 # api/*/announcement_list_v1.json files were not rebuilt / were edited by hand.
 on:
   push:
-    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcements.yml"]
+    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcement-list.yml"]
   pull_request:
-    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcements.yml"]
+    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcement-list.yml"]
 
 jobs:
   check:

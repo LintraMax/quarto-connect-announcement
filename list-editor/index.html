@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Announcement Editor</title>
+<title>Announcement List Editor</title>
 <style>
   :root {
     --bg: #f6f7f9; --panel: #ffffff; --ink: #1c2330; --muted: #5f6b7a; --line: #dfe3e8;
@@ -38,6 +38,9 @@
 
   header.top { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   header.top h1 { font-size: 16px; margin: 0 8px 0 0; }
+  header.top .titles { margin-right: 8px; }
+  header.top .scope { font-size: 11px; color: var(--muted); }
+  header.top .scope code { font-size: 10.5px; }
   .status { color: var(--muted); font-size: 12px; flex: 1 1 200px; min-width: 0; }
   .status b { color: var(--ink); }
   .dirty { color: var(--warn); font-weight: 600; }
@@ -130,16 +133,19 @@
 </head>
 <body>
 <header class="top">
-  <h1>Announcement Editor</h1>
+  <div class="titles">
+    <h1>Announcement List Editor</h1>
+    <div class="scope">Edits the side-panel list, <code>api/[variant]/announcement_list_v1.json</code>. Not the banner/dialog in <code>announcement_v1.json</code>.</div>
+  </div>
   <div class="status" id="status">Loading…</div>
   <button id="btnOpen" title="Pick your local clone of quarto-connect-announcement. Saving then writes the files straight into it.">Open repo folder</button>
-  <button id="btnSave" class="primary" disabled title="Writes src/announcements.json and the 4 api/*/announcement_list_v1.json files">Save to repo</button>
-  <button id="btnDownload" title="Download src/announcements.json">Download source</button>
+  <button id="btnSave" class="primary" disabled title="Writes src/announcement_list.json and the 4 api/*/announcement_list_v1.json files">Save to repo</button>
+  <button id="btnDownload" title="Download src/announcement_list.json">Download source</button>
 </header>
 
 <main>
   <section class="panel" aria-label="All announcements">
-    <h2>Announcements <span class="spacer"></span><button class="small primary" id="btnNew">+ New</button></h2>
+    <h2>Announcement list <span class="spacer"></span><button class="small primary" id="btnNew">+ New</button></h2>
     <div class="flow">Click a coloured square to publish to or remove from that environment. The square on a version row sets all of that version's entries at once. Order: debug → qa → prelive → release.</div>
     <div id="matrixWrap"></div>
     <div class="help" id="validationSummary"></div>
@@ -179,16 +185,16 @@
   </form>
 </dialog>
 
-<script src="../scripts/announcements-lib.js"></script>
+<script src="../scripts/announcement-list-lib.js"></script>
 <script type="module">
-if (!globalThis.AnnouncementsLib) {
+if (!globalThis.AnnouncementListLib) {
   document.getElementById("status").textContent = location.protocol === "data:"
-    ? "This preview shows a static copy and cannot run the editor. Open editor/index.html in Chrome or Edge instead."
-    : "Could not load ../scripts/announcements-lib.js — keep the editor folder inside the repo.";
-  throw new Error("AnnouncementsLib missing");
+    ? "This preview shows a static copy and cannot run the editor. Open list-editor/index.html in Chrome or Edge instead."
+    : "Could not load ../scripts/announcement-list-lib.js — keep the list-editor folder inside the repo.";
+  throw new Error("AnnouncementListLib missing");
 }
 const { VARIANTS, LANGS, LANG_NAMES, SOURCE_PATH, outputPath, versionLabel, parseVersion,
-        validate, generate, serializeSource } = globalThis.AnnouncementsLib;
+        validate, generate, serializeSource } = globalThis.AnnouncementListLib;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => {
@@ -230,7 +236,7 @@ function setSource(data, from) {
 
 // The chosen folder is remembered (IndexedDB) so next time it is one click to reconnect.
 const idb = (mode, fn) => new Promise((resolve, reject) => {
-  const open = indexedDB.open("qc-announcement-editor", 1);
+  const open = indexedDB.open("qc-announcement-list-editor", 1);
   open.onupgradeneeded = () => open.result.createObjectStore("handles");
   open.onerror = () => reject(open.error);
   open.onsuccess = () => {
@@ -253,7 +259,7 @@ async function openRepo() {
     let d = null;
     if (!dir && remembered && (await remembered.requestPermission({ mode: "readwrite" })) === "granted") d = remembered;
     d ??= await window.showDirectoryPicker({ id: "qc-announcement", mode: "readwrite" });
-    const src = await d.getDirectoryHandle("src").then((s) => s.getFileHandle("announcements.json"));
+    const src = await d.getDirectoryHandle("src").then((s) => s.getFileHandle("announcement_list.json"));
     const folderData = JSON.parse(await (await src.getFile()).text());
     const label = `folder <b>${escapeHtml(d.name)}</b>`;
     if (isDirty() && serializeSource(folderData) !== savedText) {
@@ -276,7 +282,7 @@ async function openRepo() {
     return true;
   } catch (e) {
     if (e.name === "AbortError") return false;
-    toast(e.name === "NotFoundError" ? "That folder has no src/announcements.json. Pick the root of your quarto-connect-announcement clone." : "Could not open: " + e.message);
+    toast(e.name === "NotFoundError" ? "That folder has no src/announcement_list.json. Pick the root of your quarto-connect-announcement clone." : "Could not open: " + e.message);
     return false;
   }
 }
@@ -308,7 +314,7 @@ async function saveRepo() {
 
 function download() {
   const blob = new Blob([serializeSource(source)], { type: "application/json" });
-  const a = el("a", { href: URL.createObjectURL(blob), download: "announcements.json" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: "announcement_list.json" });
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   toast("Put it in src/, run  node scripts/build.js  and commit.");
@@ -379,7 +385,7 @@ function renderStatus() {
   $("status").innerHTML = `${n} announcement${n === 1 ? "" : "s"} · from ${origin}` + (isDirty() ? ` · <span class="dirty">unsaved changes</span>` : "");
   const { errors } = validate(source);
   $("btnSave").disabled = !dir || errors.length > 0;
-  $("btnSave").title = !dir ? "Open the repo folder first" : errors.length ? "Fix the errors first" : "Writes src/announcements.json and the 4 api/*/announcement_list_v1.json files";
+  $("btnSave").title = !dir ? "Open the repo folder first" : errors.length ? "Fix the errors first" : "Writes src/announcement_list.json and the 4 api/*/announcement_list_v1.json files";
 }
 
 function vToggle(v, state, onClick, label) {

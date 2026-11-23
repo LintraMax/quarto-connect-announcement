@@ -1,11 +1,11 @@
 // Shared logic for the announcement list: validation and generation of
-// api/<variant>/announcement_list_v1.json from src/announcements.json.
-// Used by both scripts/build.js (Node) and editor/index.html (browser),
+// api/<variant>/announcement_list_v1.json from src/announcement_list.json.
+// Used by both scripts/build.js (Node) and list-editor/index.html (browser),
 // so the two always produce byte-identical output.
 //
 // Written as a plain script (no import/export) so the editor also works when
 // opened straight from disk (file://), where browsers block module imports.
-// It sets globalThis.AnnouncementsLib.
+// It sets globalThis.AnnouncementListLib.
 
 (function () {
   "use strict";
@@ -14,7 +14,7 @@
   const LANGS = ["en", "ms", "in"];
   const LANG_NAMES = { en: "English", ms: "Malay", in: "Indonesian" };
 
-  const SOURCE_PATH = "src/announcements.json";
+  const SOURCE_PATH = "src/announcement_list.json";
   const outputPath = (variant) => `api/${variant}/announcement_list_v1.json`;
 
   // 2611019 -> "v2026.11.019"
@@ -128,7 +128,7 @@
     return JSON.stringify({ announcements }, null, 2) + "\n";
   }
 
-  globalThis.AnnouncementsLib = {
+  globalThis.AnnouncementListLib = {
     VARIANTS, LANGS, LANG_NAMES, SOURCE_PATH, outputPath, versionLabel, parseVersion, validate, generate, serializeSource,
   };
 })();

@@ -1,4 +1,4 @@
-// Generates api/<variant>/announcement_list_v1.json from src/announcements.json.
+// Generates api/<variant>/announcement_list_v1.json from src/announcement_list.json.
 //
 //   node scripts/build.js           validate and write the 4 variant files
 //   node scripts/build.js --check   validate and fail if the variant files are out of date (used by CI)
@@ -6,8 +6,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import "./announcements-lib.js";
-const { SOURCE_PATH, VARIANTS, outputPath, validate, generate } = globalThis.AnnouncementsLib;
+import "./announcement-list-lib.js";
+const { SOURCE_PATH, VARIANTS, outputPath, validate, generate } = globalThis.AnnouncementListLib;
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const check = process.argv.includes("--check");
