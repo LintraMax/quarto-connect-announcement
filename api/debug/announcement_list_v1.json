@@ -13,6 +13,20 @@
         "ms": "• Modul Pengimbas QR baharu: imbas chit bercetak untuk melihat butirannya (lokasi, penuai, kuantiti, gred).\n• Modul Pengumuman baharu: baca semula pengumuman lepas pada bila-bila masa.\n• Evakuasi, Penghantaran dan imbasan wajah kini memaparkan rekod terbaharu dahulu.\n• Penuaian memaparkan ringkasan Buah Leraian.\n• Penuaian (IND) memaparkan kaedah Cuti Umum hanya apabila jenis bayaran penuaian ialah FR, HRP atau HLRP.\n• Kehadiran kini membuka tab Pekerja dahulu, sebelum Geng, dalam Kerja Harian dan Pajak.\n• Gotong-royong membenarkan lebih daripada 999 tandan secara keseluruhan, asalkan setiap pekerja tidak melebihi 999.\n• Chit Penghantaran BTS memuatkan lebih banyak maklumat (berat bersih, masa bertolak, no. meterai, no. tiket, no. plat kenderaan) dan kod QR yang lebih besar serta lebih mudah diimbas.\n• Evakuasi mengisi OU pada rekod baharu secara automatik, dan mengikut chit yang anda imbas.\n• Kehadiran wajah disekat apabila tarikh/masa automatik telefon dimatikan.\n• Pemeriksaan Kerja Am mempunyai carian.\n• Evakuasi dan Penghantaran mengisi CC ID pemuat dan pemandu daripada blok secara automatik apabila aktiviti sepadan. Ketik CC ID untuk menukarnya, atau tekan lama untuk mengosongkannya.\n• Penugasan blok Evakuasi dan Penghantaran kini merangkumi pengutip / pemuat / pemandu Buah Leraian (L.F.).\n• Log keluar kini boleh diketik walaupun senarai pengguna panjang.",
         "in": "• Modul Pemindai QR baru: pindai chit cetak untuk melihat detailnya (lokasi, pemanen, kuantitas, grading).\n• Modul Pengumuman baru: baca kembali pengumuman sebelumnya kapan saja.\n• Evakuasi, Penghantaran dan pindai wajah kini menampilkan catatan terbaru terlebih dahulu.\n• Panen menampilkan ringkasan Brondolan.\n• Panen (IND) menampilkan metode Hari Libur hanya jika tipe pembayaran panen adalah FR, HRP atau HLRP.\n• Kehadiran kini membuka tab Pekerja terlebih dahulu, sebelum Geng, pada Kerja Harian dan Borong.\n• Gotong-royong mengizinkan lebih dari 999 janjang secara total, selama setiap pekerja tidak melebihi 999.\n• Chit Pengiriman TBS memuat lebih banyak informasi (berat bersih, waktu berangkat, no. segel, no. tiket, no. polisi kendaraan) dan kode QR yang lebih besar serta lebih mudah dipindai.\n• Evakuasi mengisi OU pada catatan baru secara otomatis, dan mengikuti chit yang Anda pindai.\n• Absensi wajah diblokir jika tanggal/waktu otomatis ponsel dimatikan.\n• Inspeksi Pekerjaan Umum memiliki fitur pencarian.\n• Evakuasi dan Penghantaran mengisi CC ID pemuat dan sopir dari blok secara otomatis jika aktivitas sesuai. Ketuk CC ID untuk mengubahnya, atau tekan lama untuk mengosongkannya.\n• Penugasan blok Evakuasi dan Penghantaran kini mencakup pengutip / pemuat / sopir Brondolan (L.F.).\n• Logout kini bisa diketuk walaupun daftar pengguna panjang."
       }
+    },
+    {
+      "id": "v202611018_test_copy",
+      "versionCode": 2611018,
+      "title": {
+        "en": "What's new in v2026.11",
+        "ms": "Apa yang baharu dalam v2026.11",
+        "in": "Apa yang baru di v2026.11"
+      },
+      "body": {
+        "en": "test",
+        "ms": "test",
+        "in": "test"
+      }
     }
   ]
 }

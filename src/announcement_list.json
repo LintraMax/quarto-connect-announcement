@@ -36,6 +36,24 @@
         "ms": "test",
         "in": "test"
       }
+    },
+    {
+      "id": "v202611018_test_copy",
+      "versionCode": 2611018,
+      "variants": [
+        "debug",
+        "qa"
+      ],
+      "title": {
+        "en": "What's new in v2026.11",
+        "ms": "Apa yang baharu dalam v2026.11",
+        "in": "Apa yang baru di v2026.11"
+      },
+      "body": {
+        "en": "test",
+        "ms": "test",
+        "in": "test"
+      }
     }
   ]
 }
