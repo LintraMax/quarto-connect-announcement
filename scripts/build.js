@@ -6,7 +6,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { SOURCE_PATH, VARIANTS, outputPath, validate, generate } from "./announcements-lib.js";
+import "./announcements-lib.js";
+const { SOURCE_PATH, VARIANTS, outputPath, validate, generate } = globalThis.AnnouncementsLib;
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const check = process.argv.includes("--check");

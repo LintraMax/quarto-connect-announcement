@@ -118,6 +118,12 @@
 
   .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
   .toast.show { opacity: 1; }
+  dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); padding: 18px; width: min(420px, calc(100% - 32px)); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  dialog::backdrop { background: rgba(0,0,0,.45); }
+  dialog h3 { margin: 0 0 8px; font-size: 16px; }
+  dialog p { margin: 0 0 12px; color: var(--muted); white-space: pre-wrap; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .dlg-actions .danger-ok { background: var(--err); border-color: var(--err); color: #fff; }
   .help { font-size: 12px; color: var(--muted); padding: 10px 14px; line-height: 1.6; }
   .help code { font-size: 11px; }
 </style>
@@ -160,10 +166,29 @@
   </section>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog id="dlg">
+  <form method="dialog">
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgMsg"></p>
+    <input type="text" id="dlgInput" spellcheck="false">
+    <div class="hint" id="dlgHint"></div>
+    <div class="dlg-actions">
+      <button type="button" id="dlgCancel" onclick="this.closest('dialog').close('cancel')">Cancel</button>
+      <button value="ok" id="dlgOk" class="primary">OK</button>
+    </div>
+  </form>
+</dialog>
 
+<script src="../scripts/announcements-lib.js"></script>
 <script type="module">
-import { VARIANTS, LANGS, LANG_NAMES, SOURCE_PATH, outputPath, versionLabel, parseVersion,
-         validate, generate, serializeSource } from "../scripts/announcements-lib.js";
+if (!globalThis.AnnouncementsLib) {
+  document.getElementById("status").textContent = location.protocol === "data:"
+    ? "This preview shows a static copy and cannot run the editor. Open editor/index.html in Chrome or Edge instead."
+    : "Could not load ../scripts/announcements-lib.js — keep the editor folder inside the repo.";
+  throw new Error("AnnouncementsLib missing");
+}
+const { VARIANTS, LANGS, LANG_NAMES, SOURCE_PATH, outputPath, versionLabel, parseVersion,
+        validate, generate, serializeSource } = globalThis.AnnouncementsLib;
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => {
@@ -187,7 +212,9 @@ async function loadFromSite() {
     if (!r.ok) throw new Error(r.status);
     setSource(await r.json(), "the published site (view only — open the repo folder to save)");
   } catch (e) {
-    setSource({ announcements: [] }, "nothing (could not load " + SOURCE_PATH + ")");
+    setSource({ announcements: [] }, location.protocol === "file:"
+      ? "nothing yet — opened from disk, so click <b>Open repo folder</b> to load"
+      : "nothing (could not load " + SOURCE_PATH + ")");
   }
 }
 
@@ -206,7 +233,7 @@ async function openRepo() {
     toast("This browser cannot open folders. Use Chrome or Edge, or use Download source.");
     return;
   }
-  if (isDirty() && !confirm("Discard unsaved changes and load from the folder?")) return;
+  if (isDirty() && !(await ask({ title: "Discard unsaved changes?", message: "Loading from the folder replaces what you have edited here.", ok: "Discard and open", danger: true }))) return;
   try {
     const d = await window.showDirectoryPicker({ id: "qc-announcement", mode: "readwrite" });
     const src = await d.getDirectoryHandle("src").then((s) => s.getFileHandle("announcements.json"));
@@ -258,6 +285,32 @@ window.addEventListener("beforeunload", (e) => { if (isDirty()) { e.preventDefau
 
 // ---------- helpers ----------
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+// In-page replacement for prompt()/confirm(), which some embedded browsers block.
+// ask({ title, message, input, ok, danger, check }) -> Promise<string|true|null>
+function ask({ title, message = "", input = null, ok = "OK", danger = false, check = null }) {
+  const dlg = $("dlg"), inp = $("dlgInput"), hint = $("dlgHint"), okBtn = $("dlgOk");
+  $("dlgTitle").textContent = title;
+  $("dlgMsg").textContent = message;
+  $("dlgMsg").hidden = !message;
+  inp.hidden = input === null;
+  inp.value = input ?? "";
+  okBtn.textContent = ok;
+  okBtn.className = danger ? "danger-ok" : "primary";
+  const validate = () => {
+    const msg = check && input !== null ? check(inp.value) : "";
+    hint.textContent = msg || "";
+    hint.className = "hint" + (msg && msg.startsWith("✖") ? " bad" : "");
+    okBtn.disabled = !!(msg && msg.startsWith("✖"));
+  };
+  inp.oninput = validate;
+  validate();
+  return new Promise((resolve) => {
+    dlg.onclose = () => resolve(dlg.returnValue === "ok" ? (input === null ? true : inp.value) : null);
+    dlg.returnValue = "";
+    dlg.showModal();
+    if (input !== null) { inp.focus(); inp.select(); } else okBtn.focus();
+  });
+}
 let toastTimer;
 function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3500); }
 
@@ -410,8 +463,8 @@ function renderEditor() {
     const bullet = el("button", { className: "small", type: "button", textContent: "+ • line", title: "Add a new bullet line at the end" });
     bullet.addEventListener("click", () => { b.value = b.value.replace(/\s*$/, "") + (b.value.trim() ? "\n" : "") + "• "; b.dispatchEvent(new Event("input")); b.focus(); b.setSelectionRange(b.value.length, b.value.length); });
     const copyEn = l === "en" ? null : el("button", { className: "small", type: "button", textContent: "Copy English here", title: "Start from the English text, then translate" });
-    copyEn?.addEventListener("click", () => {
-      if ((t.value || b.value) && !confirm(`Replace the ${LANG_NAMES[l]} text with the English text?`)) return;
+    copyEn?.addEventListener("click", async () => {
+      if ((t.value || b.value) && !(await ask({ title: `Replace the ${LANG_NAMES[l]} text?`, message: "The current text is replaced with the English title and body.", ok: "Replace" }))) return;
       t.value = a.title.en || ""; b.value = a.body.en || ""; t.dispatchEvent(new Event("input")); b.dispatchEvent(new Event("input"));
     });
     const lines = el("span", { className: "hint" });
@@ -477,12 +530,18 @@ function renderOutput() {
 }
 
 // ---------- actions ----------
-function newAnnouncement() {
+async function newAnnouncement() {
   const maxV = Math.max(0, ...source.announcements.map((a) => a.versionCode || 0));
-  const input = prompt("App version for the new announcement (e.g. v2026.11.020):", maxV ? versionLabel(maxV) : "");
+  const input = await ask({
+    title: "New announcement",
+    message: "Which app version does it belong to? Users on older versions won't see it.",
+    input: maxV ? versionLabel(maxV) : "",
+    ok: "Create",
+    check: (v) => { const c = parseVersion(v); return c ? `versionCode ${c}` : "✖ Use v2026.11.020 or 2611020"; },
+  });
   if (input === null) return;
   const code = parseVersion(input);
-  if (!code) { toast("Not a version: " + input); return; }
+  if (!code) return;
   const a = { id: uniqueId(`v${code}_new`), versionCode: code, variants: ["debug"], title: { en: "", ms: "", in: "" }, body: { en: "", ms: "", in: "" } };
   // Put it at the top of its version group (file order decides order within a version).
   const at = source.announcements.findIndex((x) => x.versionCode === code);
@@ -518,9 +577,9 @@ function duplicate() {
   toast("Duplicated as " + copy.id + " (debug only).");
 }
 
-function del() {
+async function del() {
   const a = source.announcements[selected];
-  if (!a || !confirm(`Delete "${a.title.en || a.id}" from every environment?\n\nIt is removed from the files when you save. Git keeps the history.`)) return;
+  if (!a || !(await ask({ title: "Delete announcement?", message: `"${a.title.en || a.id}" is removed from every environment when you save. Git keeps the history.`, ok: "Delete", danger: true }))) return;
   source.announcements.splice(selected, 1);
   selected = source.announcements.length ? sortedIndexes()[0] : -1;
   renderAll();

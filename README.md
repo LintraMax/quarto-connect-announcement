@@ -72,7 +72,7 @@ An entry missing `id`, `versionCode` or the English `title`/`body` is skipped. I
 
 **With the editor (recommended)** - [Announcement Editor](https://lintramax.github.io/quarto-connect-announcement/editor/)
 
-1. Open the editor in Chrome or Edge and click **Open repo folder**. Pick your local clone of this repo.
+1. Open the editor in Chrome or Edge: use the link above, or double-click `editor/index.html` in your clone. Click **Open repo folder** and pick your local clone of this repo. (The Claude desktop app's preview pane shows a static copy of local files, so the editor can't run there.)
 2. Edit the entries. The table shows which environments each announcement is in: click a square to publish to that environment or remove it from there. The square on a version row changes all of that version's entries at once. English, Malay and Indonesian sit side by side, and missing translations are flagged.
 3. Click **Save to repo** (Ctrl+S). It writes `src/announcements.json` and the four variant files.
 4. Review and commit in GitHub Desktop, then push.
