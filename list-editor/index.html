@@ -205,23 +205,30 @@ const el = (tag, props = {}, ...kids) => {
 const VCOLOR = { debug: "var(--v-debug)", qa: "var(--v-qa)", prelive: "var(--v-prelive)", release: "var(--v-release)" };
 
 let source = { announcements: [] };
-let savedText = "";        // serialized source at last load/save, to detect unsaved changes
+let savedText = serializeSource(source); // serialized source at last load/save, to detect unsaved changes
 let selected = -1;         // index into source.announcements
 let dir = null;            // FileSystemDirectoryHandle of the repo, when opened
 let origin = "";           // where the data came from
 let outVariant = "release";
 
 // ---------- loading / saving ----------
+// The initial load is async. If the user has connected a folder or started editing
+// before it finishes, its result (or its failure) must not replace their data.
+const initialLoadSuperseded = () => dir !== null || isDirty();
+
 async function loadFromSite() {
+  let data, from;
   try {
     const r = await fetch("../" + SOURCE_PATH, { cache: "no-store" });
     if (!r.ok) throw new Error(r.status);
-    setSource(await r.json(), "the published site (view only — open the repo folder to save)");
+    data = await r.json();
+    from = "the published site (view only — open the repo folder to save)";
   } catch (e) {
-    setSource({ announcements: [] }, location.protocol === "file:"
-      ? "nothing yet — open the repo folder to load"
-      : "nothing (could not load " + SOURCE_PATH + ")");
+    data = { announcements: [] };
+    from = "nothing (could not load " + SOURCE_PATH + ")";
   }
+  if (initialLoadSuperseded()) return;
+  setSource(data, from);
 }
 
 function setSource(data, from) {
@@ -438,6 +445,7 @@ function renderMatrix() {
           const turnOn = state !== "on";
           group.forEach((x) => setVariant(x, v, turnOn));
           changed();
+          if (group.includes(source.announcements[selected])) renderEditor(); // keep "Published to" checkboxes in sync
           toast(`${turnOn ? "Published" : "Removed"} ${versionLabel(a.versionCode)} ${turnOn ? "to" : "from"} ${v}`);
         }, `${state === "on" ? "Remove" : "Publish"} all ${versionLabel(a.versionCode)} ${state === "on" ? "from" : "to"} ${v}`));
         gr.append(td);
@@ -658,7 +666,7 @@ recallFolder().then((h) => {
   remembered = h || null;
   if (remembered) { $("btnOpen").textContent = `Reconnect ${remembered.name}`; $("btnOpen").title = "Reconnect to the folder you used last time"; }
   // From disk the browser cannot read the repo files without the folder, so skip the fetch.
-  if (location.protocol === "file:") setSource({ announcements: [] }, "nothing yet — open the repo folder to load");
+  if (location.protocol === "file:") { if (!initialLoadSuperseded()) setSource({ announcements: [] }, "nothing yet — open the repo folder to load"); }
   else loadFromSite();
 });
 </script>
