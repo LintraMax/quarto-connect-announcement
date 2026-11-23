@@ -54,6 +54,24 @@
         "ms": "test",
         "in": "test"
       }
+    },
+    {
+      "id": "v202611019_test_copy",
+      "versionCode": 2611019,
+      "variants": [
+        "debug",
+        "qa"
+      ],
+      "title": {
+        "en": "What's new in v2026.11.019",
+        "ms": "Apa yang baharu dalam v2026.11.019",
+        "in": "Apa yang baru di v2026.11.019"
+      },
+      "body": {
+        "en": "test on 019",
+        "ms": "test on 019",
+        "in": "test on 019"
+      }
     }
   ]
 }
