@@ -54,4 +54,38 @@ Every announcement users can read back from **Announcements** in the app's side 
 
 An entry missing `id`, `versionCode` or the English `title`/`body` is skipped. Invalid JSON makes the whole file unreadable, so the app keeps showing its last cached copy - validate the JSON before pushing.
 
-To add one, put a new entry in the `announcements` array of each variant you want it in.
+### Editing the announcement list: one source file, four generated files
+
+This section is only about the **announcement list** (`announcement_list_v1.json`, the side panel). The banner/dialog in `announcement_v1.json` is separate, has no translations, and is still edited by hand.
+
+**Do not edit `api/*/announcement_list_v1.json` by hand.** They are generated from a single source file, [`src/announcement_list.json`](src/announcement_list.json), where each entry also lists the variants it is published to:
+
+```json
+{
+  "id": "v2611020_sync_fix",
+  "versionCode": 2611020,
+  "variants": ["debug", "qa"],
+  "title": { "en": "...", "ms": "...", "in": "..." },
+  "body": { "en": "...", "ms": "...", "in": "..." }
+}
+```
+
+`variants` is only used to generate the files. The app files contain exactly the fields above (`id`, `versionCode`, `title`, `body`), at the same paths, so the app needs no change. To promote an announcement from qa to release, add `"release"` to its `variants`.
+
+**With the editor (recommended)** - [Announcement List Editor](https://lintramax.github.io/quarto-connect-announcement/list-editor/)
+
+1. Open the editor in Chrome or Edge: use the link above, or double-click `list-editor/index.html` in your clone. Click **Open repo folder** and pick the root of your local clone (the folder that contains `src` and `api`). Chrome remembers it, so next time it is one **Reconnect** click. When opened from disk the list stays empty until you pick the folder, because browsers block a local page from reading other local files. (The Claude desktop app's preview pane shows a static copy of local files, so the editor can't run there.)
+2. Edit the entries. The table shows which environments each announcement is in: click a square to publish to that environment or remove it from there. The square on a version row changes all of that version's entries at once. English, Malay and Indonesian sit side by side, and missing translations are flagged.
+3. Click **Save to repo** (Ctrl+S). It writes `src/announcement_list.json` and the four variant files.
+4. Review and commit in GitHub Desktop, then push.
+
+Without opening a folder, the editor shows the published data read-only. **Download source** saves the edited `announcement_list.json` so you can build it by hand (below).
+
+**By hand**
+
+1. Edit `src/announcement_list.json`.
+2. Run `node scripts/build.js`. It validates the source and rewrites the four variant files. Nothing is written if there are errors.
+3. Commit the source and the generated files together.
+
+The *Check announcement list* GitHub Action runs `node scripts/build.js --check` on every push and pull request. It fails if the source is invalid or the generated files were not rebuilt or were edited by hand.
+

@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Announcement List Editor</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1c2330; --muted: #5f6b7a; --line: #dfe3e8;
+    --accent: #1f6feb; --accent-ink: #ffffff; --accent-soft: #e6efff;
+    --ok: #1a7f37; --ok-soft: #e3f4e8; --warn: #9a6700; --warn-soft: #fff4d6;
+    --err: #c62828; --err-soft: #fde7e7; --off: #eef0f3; --off-ink: #8a94a3;
+    --v-debug: #6e7781; --v-qa: #8250df; --v-prelive: #bf8700; --v-release: #1a7f37;
+    --radius: 8px; --shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1318; --panel: #171c23; --ink: #e6e9ee; --muted: #9aa5b4; --line: #2a313b;
+      --accent: #4c8dff; --accent-ink: #0b1220; --accent-soft: #1a2a45;
+      --ok: #4ac26b; --ok-soft: #12301c; --warn: #d4a72c; --warn-soft: #33290f;
+      --err: #ff6b6b; --err-soft: #3a1717; --off: #222832; --off-ink: #6b7686;
+      --v-debug: #8b949e; --v-qa: #a371f7; --v-prelive: #d4a72c; --v-release: #4ac26b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 12px; }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button.danger { color: var(--err); }
+  button.small { padding: 3px 8px; font-size: 12px; }
+  input[type=text], textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; background: var(--bg); }
+  input[type=text]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  textarea { resize: vertical; min-height: 220px; line-height: 1.5; }
+  label.f { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 4px; }
+
+  header.top { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  header.top h1 { font-size: 16px; margin: 0 8px 0 0; }
+  header.top .titles { margin-right: 8px; }
+  header.top .scope { font-size: 11px; color: var(--muted); }
+  header.top .scope code { font-size: 10.5px; }
+  .status { color: var(--muted); font-size: 12px; flex: 1 1 200px; min-width: 0; }
+  .status b { color: var(--ink); }
+  .dirty { color: var(--warn); font-weight: 600; }
+  .spacer { flex: 1; }
+
+  main { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: 16px; padding: 16px; max-width: 1600px; margin: 0 auto; }
+  @media (max-width: 1000px) { main { grid-template-columns: minmax(0, 1fr); } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .panel > h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+  .panel > h2 .spacer { flex: 1; }
+
+  /* Matrix */
+  .matrix { width: 100%; border-collapse: collapse; }
+  .matrix th, .matrix td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  .matrix thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); position: sticky; top: 0; background: var(--panel); }
+  .matrix th.v, .matrix td.v { text-align: center; width: 62px; padding-left: 2px; padding-right: 2px; }
+  .matrix tr.group td { background: var(--bg); font-weight: 700; font-size: 13px; }
+  .matrix tr.group td.v { font-weight: 400; }
+  .matrix tr.row { cursor: pointer; }
+  .matrix tr.row:hover td { background: var(--accent-soft); }
+  .matrix tr.row.sel td { background: var(--accent-soft); box-shadow: inset 0 0 0 0 var(--accent); }
+  .matrix tr.row.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  .t-title { font-weight: 600; overflow-wrap: anywhere; }
+  .t-id { font: 11px ui-monospace, Consolas, monospace; color: var(--muted); overflow-wrap: anywhere; }
+  .langs { display: inline-flex; gap: 3px; margin-top: 3px; }
+  .lang { font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; background: var(--ok-soft); color: var(--ok); }
+  .lang.miss { background: var(--warn-soft); color: var(--warn); text-decoration: line-through; }
+  .issue-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; vertical-align: middle; }
+  .issue-dot.err { background: var(--err); } .issue-dot.warn { background: var(--warn); }
+
+  .vt { width: 30px; height: 26px; padding: 0; border-radius: 6px; border: 1px solid var(--line); background: var(--off); color: var(--off-ink); font-size: 14px; line-height: 1; }
+  .vt.on { color: #fff; border-color: transparent; }
+  .vt.some { border-style: dashed; color: var(--ink); background: var(--panel); }
+  .vt[data-v=debug].on { background: var(--v-debug); } .vt[data-v=qa].on { background: var(--v-qa); }
+  .vt[data-v=prelive].on { background: var(--v-prelive); } .vt[data-v=release].on { background: var(--v-release); }
+  .vhead { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; }
+  .vhead i { font-style: normal; width: 8px; height: 8px; border-radius: 50%; }
+  .flow { font-size: 11px; color: var(--muted); padding: 8px 14px; border-bottom: 1px solid var(--line); }
+  .empty { padding: 30px 14px; text-align: center; color: var(--muted); }
+
+  /* Editor */
+  .edit-body { padding: 14px; display: grid; gap: 14px; }
+  .row2 { display: grid; grid-template-columns: 1fr 200px; gap: 12px; }
+  @media (max-width: 600px) { .row2 { grid-template-columns: 1fr; } }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .hint.bad { color: var(--err); }
+  .variants { display: flex; gap: 8px; flex-wrap: wrap; }
+  .variants label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+  .variants label.on { border-color: currentColor; font-weight: 600; }
+  .langgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 1300px) { .langgrid { grid-template-columns: minmax(0, 1fr); } .langgrid textarea { min-height: 160px; } }
+  .langcol { display: grid; gap: 8px; align-content: start; }
+  .langcol h3 { margin: 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .langcol h3 small { font-weight: 400; color: var(--muted); }
+  .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+  .issues { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .issues li { padding: 6px 10px; border-radius: 6px; font-size: 13px; }
+  .issues li.err { background: var(--err-soft); color: var(--err); }
+  .issues li.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* Preview */
+  .preview-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
+  @media (max-width: 1300px) { .preview-wrap { grid-template-columns: minmax(0, 1fr); } }
+  .phone { border: 1px solid var(--line); border-radius: 18px; padding: 10px; background: var(--bg); max-width: 320px; }
+  .phone .bar { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); padding: 0 4px 8px; }
+  .phone .vh { font-size: 12px; font-weight: 700; color: var(--accent); padding: 4px 4px; }
+  .phone .card { background: var(--panel); border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow); }
+  .phone .card h4 { margin: 0 0 6px; font-size: 14px; }
+  .phone .card p { margin: 0; font-size: 12.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .phone .fallback { font-size: 11px; color: var(--warn); margin-top: 6px; }
+
+  details.out { border-top: 1px solid var(--line); }
+  details.out summary { cursor: pointer; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .out-body { padding: 0 14px 14px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+  .tabs button.on { background: var(--accent-soft); border-color: var(--accent); }
+  pre.code { margin: 0; max-height: 360px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 12px/1.45 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: calc(100% - 32px); }
+  .toast.show { opacity: 1; }
+  dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--ink); padding: 18px; width: min(420px, calc(100% - 32px)); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  dialog::backdrop { background: rgba(0,0,0,.45); }
+  dialog h3 { margin: 0 0 8px; font-size: 16px; }
+  dialog p { margin: 0 0 12px; color: var(--muted); white-space: pre-wrap; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .dlg-actions .danger-ok { background: var(--err); border-color: var(--err); color: #fff; }
+  .help { font-size: 12px; color: var(--muted); padding: 10px 14px; line-height: 1.6; }
+  .help code { font-size: 11px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="titles">
+    <h1>Announcement List Editor</h1>
+    <div class="scope">Edits the side-panel list, <code>api/[variant]/announcement_list_v1.json</code>. Not the banner/dialog in <code>announcement_v1.json</code>.</div>
+  </div>
+  <div class="status" id="status">Loading…</div>
+  <button id="btnOpen" title="Pick your local clone of quarto-connect-announcement. Saving then writes the files straight into it.">Open repo folder</button>
+  <button id="btnSave" class="primary" disabled title="Writes src/announcement_list.json and the 4 api/*/announcement_list_v1.json files">Save to repo</button>
+  <button id="btnDownload" title="Download src/announcement_list.json">Download source</button>
+</header>
+
+<main>
+  <section class="panel" aria-label="All announcements">
+    <h2>Announcement list <span class="spacer"></span><button class="small primary" id="btnNew">+ New</button></h2>
+    <div class="flow">Click a coloured square to publish to or remove from that environment. The square on a version row sets all of that version's entries at once. Order: debug → qa → prelive → release.</div>
+    <div id="matrixWrap"></div>
+    <div class="help" id="validationSummary"></div>
+  </section>
+
+  <section class="panel" aria-label="Edit announcement">
+    <h2 id="editTitle">Edit <span class="spacer"></span>
+      <span class="tools" id="editTools" hidden>
+        <button class="small" id="btnUp" title="Move up within its version">↑</button>
+        <button class="small" id="btnDown" title="Move down within its version">↓</button>
+        <button class="small" id="btnDup">Duplicate</button>
+        <button class="small danger" id="btnDel">Delete</button>
+      </span>
+    </h2>
+    <div id="editor"><div class="empty">Select an announcement on the left, or create a new one.</div></div>
+    <details class="out" id="outDetails">
+      <summary>Generated files (what the app downloads)</summary>
+      <div class="out-body">
+        <div class="tabs" id="outTabs"></div>
+        <pre class="code" id="outCode"></pre>
+        <div style="margin-top:8px"><button class="small" id="btnCopy">Copy</button></div>
+      </div>
+    </details>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog id="dlg">
+  <form method="dialog">
+    <h3 id="dlgTitle"></h3>
+    <p id="dlgMsg"></p>
+    <input type="text" id="dlgInput" spellcheck="false">
+    <div class="hint" id="dlgHint"></div>
+    <div class="dlg-actions">
+      <button type="button" id="dlgCancel" onclick="this.closest('dialog').close('cancel')">Cancel</button>
+      <button value="ok" id="dlgOk" class="primary">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="../scripts/announcement-list-lib.js"></script>
+<script type="module">
+if (!globalThis.AnnouncementListLib) {
+  document.getElementById("status").textContent = location.protocol === "data:"
+    ? "This preview shows a static copy and cannot run the editor. Open list-editor/index.html in Chrome or Edge instead."
+    : "Could not load ../scripts/announcement-list-lib.js — keep the list-editor folder inside the repo.";
+  throw new Error("AnnouncementListLib missing");
+}
+const { VARIANTS, LANGS, LANG_NAMES, SOURCE_PATH, outputPath, versionLabel, parseVersion,
+        validate, generate, serializeSource } = globalThis.AnnouncementListLib;
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, props = {}, ...kids) => {
+  const n = Object.assign(document.createElement(tag), props);
+  for (const k of kids) if (k != null) n.append(k);
+  return n;
+};
+const VCOLOR = { debug: "var(--v-debug)", qa: "var(--v-qa)", prelive: "var(--v-prelive)", release: "var(--v-release)" };
+
+let source = { announcements: [] };
+let savedText = serializeSource(source); // serialized source at last load/save, to detect unsaved changes
+let selected = -1;         // index into source.announcements
+let dir = null;            // FileSystemDirectoryHandle of the repo, when opened
+let origin = "";           // where the data came from
+let outVariant = "release";
+
+// ---------- loading / saving ----------
+// The initial load is async. If the user has connected a folder or started editing
+// before it finishes, its result (or its failure) must not replace their data.
+const initialLoadSuperseded = () => dir !== null || isDirty();
+
+async function loadFromSite() {
+  let data, from;
+  try {
+    const r = await fetch("../" + SOURCE_PATH, { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    data = await r.json();
+    from = "the published site (view only — open the repo folder to save)";
+  } catch (e) {
+    data = { announcements: [] };
+    from = "nothing (could not load " + SOURCE_PATH + ")";
+  }
+  if (initialLoadSuperseded()) return;
+  setSource(data, from);
+}
+
+function setSource(data, from) {
+  data.announcements ??= [];
+  for (const a of data.announcements) { a.variants ??= []; a.title ??= {}; a.body ??= {}; }
+  source = data;
+  savedText = serializeSource(source);
+  origin = from;
+  selected = source.announcements.length ? sortedIndexes()[0] : -1;
+  renderAll();
+}
+
+// The chosen folder is remembered (IndexedDB) so next time it is one click to reconnect.
+const idb = (mode, fn) => new Promise((resolve, reject) => {
+  const open = indexedDB.open("qc-announcement-list-editor", 1);
+  open.onupgradeneeded = () => open.result.createObjectStore("handles");
+  open.onerror = () => reject(open.error);
+  open.onsuccess = () => {
+    const tx = open.result.transaction("handles", mode);
+    const req = fn(tx.objectStore("handles"));
+    tx.oncomplete = () => resolve(req.result);
+    tx.onerror = () => reject(tx.error);
+  };
+});
+const rememberFolder = (h) => idb("readwrite", (s) => s.put(h, "repo")).catch(() => {});
+const recallFolder = () => idb("readonly", (s) => s.get("repo")).catch(() => null);
+let remembered = null;
+
+async function openRepo() {
+  if (!window.showDirectoryPicker) {
+    toast("This browser cannot open folders. Use Chrome or Edge, or use Download source.");
+    return false;
+  }
+  try {
+    let d = null;
+    if (!dir && remembered && (await remembered.requestPermission({ mode: "readwrite" })) === "granted") d = remembered;
+    d ??= await window.showDirectoryPicker({ id: "qc-announcement", mode: "readwrite" });
+    const src = await d.getDirectoryHandle("src").then((s) => s.getFileHandle("announcement_list.json"));
+    const folderData = JSON.parse(await (await src.getFile()).text());
+    const label = `folder <b>${escapeHtml(d.name)}</b>`;
+    if (isDirty() && serializeSource(folderData) !== savedText) {
+      // Edits were made on top of different data than what is in the folder.
+      const load = await ask({ title: "The folder has different content", message: "Your unsaved edits here were made on other data. Load the folder's version and discard your edits?", ok: "Load folder, discard edits", danger: true });
+      if (!load) return false;
+      setSource(folderData, label);
+    } else if (isDirty()) {
+      // Edits were made on top of the same data: keep them, just attach the folder.
+      origin = label;
+    } else {
+      setSource(folderData, label);
+    }
+    dir = d;
+    remembered = d;
+    rememberFolder(d);
+    $("btnOpen").textContent = "Change folder";
+    renderAll();
+    toast("Connected to " + d.name + (isDirty() ? " — your edits are kept, Save to write them" : ""));
+    return true;
+  } catch (e) {
+    if (e.name === "AbortError") return false;
+    toast(e.name === "NotFoundError" ? "That folder has no src/announcement_list.json. Pick the root of your quarto-connect-announcement clone." : "Could not open: " + e.message);
+    return false;
+  }
+}
+
+async function writeFile(pathParts, text) {
+  let d = dir;
+  for (const p of pathParts.slice(0, -1)) d = await d.getDirectoryHandle(p, { create: true });
+  const fh = await d.getFileHandle(pathParts.at(-1), { create: true });
+  const w = await fh.createWritable();
+  await w.write(text);
+  await w.close();
+}
+
+async function saveRepo() {
+  const { errors } = validate(source);
+  if (errors.length) { toast("Fix the errors first (red items)."); return; }
+  try {
+    const files = generate(source);
+    const text = serializeSource(source);
+    await writeFile(SOURCE_PATH.split("/"), text);
+    for (const v of VARIANTS) await writeFile(outputPath(v).split("/"), files[v]);
+    savedText = text;
+    renderStatus();
+    toast("Saved 5 files. Review and commit them in GitHub Desktop.");
+  } catch (e) {
+    toast("Save failed: " + e.message);
+  }
+}
+
+function download() {
+  const blob = new Blob([serializeSource(source)], { type: "application/json" });
+  const a = el("a", { href: URL.createObjectURL(blob), download: "announcement_list.json" });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast("Put it in src/, run  node scripts/build.js  and commit.");
+}
+
+const isDirty = () => serializeSource(source) !== savedText;
+window.addEventListener("beforeunload", (e) => { if (isDirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---------- helpers ----------
+function escapeHtml(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+// In-page replacement for prompt()/confirm(), which some embedded browsers block.
+// ask({ title, message, input, ok, danger, check }) -> Promise<string|true|null>
+function ask({ title, message = "", input = null, ok = "OK", danger = false, check = null }) {
+  const dlg = $("dlg"), inp = $("dlgInput"), hint = $("dlgHint"), okBtn = $("dlgOk");
+  $("dlgTitle").textContent = title;
+  $("dlgMsg").textContent = message;
+  $("dlgMsg").hidden = !message;
+  inp.hidden = input === null;
+  inp.value = input ?? "";
+  okBtn.textContent = ok;
+  okBtn.className = danger ? "danger-ok" : "primary";
+  const validate = () => {
+    const msg = check && input !== null ? check(inp.value) : "";
+    hint.textContent = msg || "";
+    hint.className = "hint" + (msg && msg.startsWith("✖") ? " bad" : "");
+    okBtn.disabled = !!(msg && msg.startsWith("✖"));
+  };
+  inp.oninput = validate;
+  validate();
+  return new Promise((resolve) => {
+    dlg.onclose = () => resolve(dlg.returnValue === "ok" ? (input === null ? true : inp.value) : null);
+    dlg.returnValue = "";
+    dlg.showModal();
+    if (input !== null) { inp.focus(); inp.select(); } else okBtn.focus();
+  });
+}
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3500); }
+
+// Display order: newest version first, then file order within a version (as the app shows it).
+function sortedIndexes() {
+  return source.announcements.map((_, i) => i).sort((a, b) => {
+    const va = source.announcements[a].versionCode || 0, vb = source.announcements[b].versionCode || 0;
+    return vb - va || a - b;
+  });
+}
+function issuesByIndex() {
+  const { errors, warnings } = validate(source);
+  const m = new Map();
+  const put = (p, kind) => { if (!m.has(p.index)) m.set(p.index, []); m.get(p.index).push({ kind, message: p.message }); };
+  errors.forEach((p) => put(p, "err")); warnings.forEach((p) => put(p, "warn"));
+  return { m, errors, warnings };
+}
+function slug(s) { return String(s || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 32); }
+function uniqueId(base) {
+  const ids = new Set(source.announcements.map((a) => a.id));
+  let id = base, n = 2;
+  while (ids.has(id)) id = `${base}_${n++}`;
+  return id;
+}
+
+// ---------- rendering ----------
+function renderAll() { renderStatus(); renderMatrix(); renderEditor(); renderOutput(); }
+function changed() { renderStatus(); renderMatrix(); renderOutput(); renderIssues(); renderPreview(); }
+
+function renderStatus() {
+  const n = source.announcements.length;
+  $("status").innerHTML = `${n} announcement${n === 1 ? "" : "s"} · from ${origin}` + (isDirty() ? ` · <span class="dirty">unsaved changes</span>` : "");
+  const { errors } = validate(source);
+  $("btnSave").disabled = !dir || errors.length > 0;
+  $("btnSave").title = !dir ? "Open the repo folder first" : errors.length ? "Fix the errors first" : "Writes src/announcement_list.json and the 4 api/*/announcement_list_v1.json files";
+}
+
+function vToggle(v, state, onClick, label) {
+  const b = el("button", { className: "vt" + (state === "on" ? " on" : state === "some" ? " some" : ""), title: label, textContent: state === "on" ? "✓" : state === "some" ? "–" : "" });
+  b.dataset.v = v;
+  b.setAttribute("aria-pressed", state === "on" ? "true" : state === "some" ? "mixed" : "false");
+  b.setAttribute("aria-label", label);
+  b.addEventListener("click", (e) => { e.stopPropagation(); onClick(); });
+  return b;
+}
+
+function renderMatrix() {
+  const wrap = $("matrixWrap");
+  wrap.replaceChildren();
+  if (!source.announcements.length) {
+    if (!dir && location.protocol === "file:") {
+      // Opened from disk: browsers block reading other local files, so the folder must be picked.
+      const btn = el("button", { className: "primary", textContent: remembered ? `Reconnect to ${remembered.name}` : "Open repo folder" });
+      btn.addEventListener("click", openRepo);
+      wrap.append(el("div", { className: "empty" },
+        el("p", { textContent: "Opened from disk, so the browser needs your permission to read and save the repo files." }),
+        btn,
+        el("p", { className: "hint", textContent: "Pick the root of your quarto-connect-announcement clone (the folder that contains src and api). Chrome remembers it for next time." })));
+    } else {
+      wrap.append(el("div", { className: "empty", textContent: "No announcements yet." }));
+    }
+    renderSummary();
+    return;
+  }
+
+  const { m } = issuesByIndex();
+  const counts = Object.fromEntries(VARIANTS.map((v) => [v, source.announcements.filter((a) => a.variants.includes(v)).length]));
+  const head = el("tr", {}, el("th", { textContent: "Announcement" }),
+    ...VARIANTS.map((v) => { const th = el("th", { className: "v" }); const s = el("span", { className: "vhead" }); const dot = el("i"); dot.style.background = VCOLOR[v]; s.append(dot, v, el("span", { textContent: `(${counts[v]})` })); th.append(s); return th; }));
+  const table = el("table", { className: "matrix" }, el("thead", {}, head));
+  const tbody = el("tbody");
+
+  let lastVersion = null;
+  for (const i of sortedIndexes()) {
+    const a = source.announcements[i];
+    if (a.versionCode !== lastVersion) {
+      lastVersion = a.versionCode;
+      const group = source.announcements.filter((x) => x.versionCode === a.versionCode);
+      const gr = el("tr", { className: "group" }, el("td", { textContent: versionLabel(a.versionCode) }));
+      for (const v of VARIANTS) {
+        const on = group.filter((x) => x.variants.includes(v)).length;
+        const state = on === group.length ? "on" : on ? "some" : "off";
+        const td = el("td", { className: "v" });
+        td.append(vToggle(v, state, () => {
+          const turnOn = state !== "on";
+          group.forEach((x) => setVariant(x, v, turnOn));
+          changed();
+          if (group.includes(source.announcements[selected])) renderEditor(); // keep "Published to" checkboxes in sync
+          toast(`${turnOn ? "Published" : "Removed"} ${versionLabel(a.versionCode)} ${turnOn ? "to" : "from"} ${v}`);
+        }, `${state === "on" ? "Remove" : "Publish"} all ${versionLabel(a.versionCode)} ${state === "on" ? "from" : "to"} ${v}`));
+        gr.append(td);
+      }
+      tbody.append(gr);
+    }
+    const iss = m.get(i) || [];
+    const cell = el("td");
+    const title = el("div", { className: "t-title", textContent: a.title.en || "(no English title)" });
+    if (iss.some((x) => x.kind === "err")) title.append(el("span", { className: "issue-dot err", title: "Has errors" }));
+    else if (iss.length) title.append(el("span", { className: "issue-dot warn", title: "Has warnings" }));
+    const langs = el("span", { className: "langs" }, ...LANGS.map((l) => el("span", { className: "lang" + ((a.title[l] || "").trim() && (a.body[l] || "").trim() ? "" : " miss"), textContent: l.toUpperCase(), title: LANG_NAMES[l] })));
+    cell.append(title, el("div", { className: "t-id", textContent: a.id || "(no id)" }), langs);
+    const tr = el("tr", { className: "row" + (i === selected ? " sel" : "") }, cell);
+    for (const v of VARIANTS) {
+      const td = el("td", { className: "v" });
+      const on = a.variants.includes(v);
+      td.append(vToggle(v, on ? "on" : "off", () => { setVariant(a, v, !on); changed(); if (i === selected) renderEditor(); }, `${on ? "Remove from" : "Publish to"} ${v}`));
+      tr.append(td);
+    }
+    tr.addEventListener("click", () => { selected = i; renderMatrix(); renderEditor(); });
+    tbody.append(tr);
+  }
+  table.append(tbody);
+  wrap.append(table);
+  renderSummary();
+}
+
+function renderSummary() {
+  const { errors, warnings } = validate(source);
+  $("validationSummary").innerHTML = errors.length
+    ? `<span style="color:var(--err)">✖ ${errors.length} error(s)</span> — saving is blocked until they are fixed.`
+    : `✔ Valid${warnings.length ? ` · ${warnings.length} warning(s)` : ""}. ` + (dir ? "Save writes the source and all 4 variant files." : "Open the repo folder to save, or download the source.");
+}
+
+function setVariant(a, v, on) {
+  const s = new Set(a.variants);
+  on ? s.add(v) : s.delete(v);
+  a.variants = VARIANTS.filter((x) => s.has(x));
+}
+
+function renderEditor() {
+  const box = $("editor");
+  const a = source.announcements[selected];
+  $("editTools").hidden = !a;
+  if (!a) { box.replaceChildren(el("div", { className: "empty", textContent: "Select an announcement on the left, or create a new one." })); return; }
+
+  // id + version
+  const idIn = el("input", { type: "text", value: a.id || "", spellcheck: false });
+  idIn.addEventListener("input", () => { a.id = idIn.value.trim(); changed(); });
+  const verIn = el("input", { type: "text", value: a.versionCode ? versionLabel(a.versionCode) : "", spellcheck: false, placeholder: "v2026.11.020" });
+  const verHint = el("div", { className: "hint" });
+  const showVer = () => {
+    const c = parseVersion(verIn.value);
+    verHint.className = "hint" + (c ? "" : " bad");
+    verHint.textContent = c ? `versionCode ${c}` : "Use v2026.11.020 or 2611020";
+  };
+  verIn.addEventListener("input", () => { const c = parseVersion(verIn.value); a.versionCode = c ?? NaN; showVer(); changed(); });
+  verIn.addEventListener("blur", () => { if (a.versionCode) verIn.value = versionLabel(a.versionCode); });
+  showVer();
+
+  const variants = el("div", { className: "variants" });
+  for (const v of VARIANTS) {
+    const cb = el("input", { type: "checkbox", checked: a.variants.includes(v) });
+    const lab = el("label", { className: cb.checked ? "on" : "" }, cb, v);
+    lab.style.color = cb.checked ? VCOLOR[v] : "";
+    cb.addEventListener("change", () => { setVariant(a, v, cb.checked); lab.className = cb.checked ? "on" : ""; lab.style.color = cb.checked ? VCOLOR[v] : ""; changed(); });
+    variants.append(lab);
+  }
+
+  const langgrid = el("div", { className: "langgrid" });
+  for (const l of LANGS) {
+    const t = el("input", { type: "text", value: a.title[l] || "", placeholder: l === "en" ? "Required" : "Empty = users see English" });
+    const b = el("textarea", { value: a.body[l] || "", placeholder: l === "en" ? "Required. One line per point, start with • " : "Empty = users see English" });
+    t.addEventListener("input", () => { a.title[l] = t.value; changed(); });
+    b.addEventListener("input", () => { a.body[l] = b.value; changed(); });
+    const bullet = el("button", { className: "small", type: "button", textContent: "+ • line", title: "Add a new bullet line at the end" });
+    bullet.addEventListener("click", () => { b.value = b.value.replace(/\s*$/, "") + (b.value.trim() ? "\n" : "") + "• "; b.dispatchEvent(new Event("input")); b.focus(); b.setSelectionRange(b.value.length, b.value.length); });
+    const copyEn = l === "en" ? null : el("button", { className: "small", type: "button", textContent: "Copy English here", title: "Start from the English text, then translate" });
+    copyEn?.addEventListener("click", async () => {
+      if ((t.value || b.value) && !(await ask({ title: `Replace the ${LANG_NAMES[l]} text?`, message: "The current text is replaced with the English title and body.", ok: "Replace" }))) return;
+      t.value = a.title.en || ""; b.value = a.body.en || ""; t.dispatchEvent(new Event("input")); b.dispatchEvent(new Event("input"));
+    });
+    const lines = el("span", { className: "hint" });
+    const countLines = () => { const n = b.value.split("\n").filter((x) => x.trim()).length; lines.textContent = `${n} line${n === 1 ? "" : "s"}`; };
+    b.addEventListener("input", countLines); countLines();
+    langgrid.append(el("div", { className: "langcol" },
+      el("h3", {}, LANG_NAMES[l], el("small", { textContent: `(${l})${l === "en" ? " · required" : ""}` })),
+      el("label", { className: "f", textContent: "Title" }), t,
+      el("label", { className: "f", textContent: "Body" }), b,
+      el("div", { className: "tools" }, bullet, copyEn, lines)));
+  }
+
+  const issues = el("ul", { className: "issues", id: "issues" });
+  const previewLang = el("select", { id: "previewLang" }, ...LANGS.map((l) => el("option", { value: l, textContent: LANG_NAMES[l] })));
+  previewLang.addEventListener("change", renderPreview);
+  const phone = el("div", { className: "phone", id: "phone" });
+
+  box.replaceChildren(el("div", { className: "edit-body" },
+    el("div", { className: "row2" },
+      el("div", {}, el("label", { className: "f", textContent: "Id (unique, never reuse)" }), idIn),
+      el("div", {}, el("label", { className: "f", textContent: "App version" }), verIn, verHint)),
+    el("div", {}, el("label", { className: "f", textContent: "Published to" }), variants),
+    issues,
+    langgrid,
+    el("div", { className: "preview-wrap" },
+      el("div", {}, el("label", { className: "f", textContent: "Preview language" }), previewLang,
+        el("p", { className: "hint", textContent: "Roughly how the entry looks in the app's Announcements list. Languages without text fall back to English." })),
+      phone)));
+  renderIssues();
+  renderPreview();
+}
+
+function renderIssues() {
+  const ul = $("issues");
+  if (!ul) return;
+  const { m } = issuesByIndex();
+  ul.replaceChildren(...(m.get(selected) || []).map((x) => el("li", { className: x.kind, textContent: (x.kind === "err" ? "✖ " : "⚠ ") + x.message })));
+}
+
+function renderPreview() {
+  const phone = $("phone"), a = source.announcements[selected];
+  if (!phone || !a) return;
+  const l = $("previewLang").value;
+  const title = (a.title[l] || "").trim() ? a.title[l] : a.title.en || "";
+  const body = (a.body[l] || "").trim() ? a.body[l] : a.body.en || "";
+  const fell = l !== "en" && (!(a.title[l] || "").trim() || !(a.body[l] || "").trim());
+  phone.replaceChildren(
+    el("div", { className: "bar" }, el("span", { textContent: "☰ Announcements" }), el("span", { textContent: "QC" })),
+    el("div", { className: "vh", textContent: a.versionCode ? versionLabel(a.versionCode) : "v?" }),
+    el("div", { className: "card" }, el("h4", { textContent: title }), el("p", { textContent: body }),
+      fell ? el("div", { className: "fallback", textContent: `${LANG_NAMES[l]} text missing — showing English` }) : null));
+}
+
+function renderOutput() {
+  const tabs = $("outTabs");
+  tabs.replaceChildren(...VARIANTS.map((v) => {
+    const b = el("button", { className: "small" + (v === outVariant ? " on" : ""), textContent: v });
+    b.addEventListener("click", () => { outVariant = v; renderOutput(); });
+    return b;
+  }));
+  try { $("outCode").textContent = `// ${outputPath(outVariant)}\n` + generate(source)[outVariant]; }
+  catch (e) { $("outCode").textContent = "Cannot generate: " + e.message; }
+}
+
+// ---------- actions ----------
+async function newAnnouncement() {
+  // Opened from disk with nothing loaded: connect the folder first, so the new entry is
+  // added to the real list (and can be saved) rather than to an empty one.
+  if (!dir && location.protocol === "file:" && window.showDirectoryPicker && !(await openRepo())) return;
+  const maxV = Math.max(0, ...source.announcements.map((a) => a.versionCode || 0));
+  const input = await ask({
+    title: "New announcement",
+    message: "Which app version does it belong to? Users on older versions won't see it.",
+    input: maxV ? versionLabel(maxV) : "",
+    ok: "Create",
+    check: (v) => { const c = parseVersion(v); return c ? `versionCode ${c}` : "✖ Use v2026.11.020 or 2611020"; },
+  });
+  if (input === null) return;
+  const code = parseVersion(input);
+  if (!code) return;
+  const a = { id: uniqueId(`v${code}_new`), versionCode: code, variants: ["debug"], title: { en: "", ms: "", in: "" }, body: { en: "", ms: "", in: "" } };
+  // Put it at the top of its version group (file order decides order within a version).
+  const at = source.announcements.findIndex((x) => x.versionCode === code);
+  const pos = at === -1 ? 0 : at;
+  source.announcements.splice(pos, 0, a);
+  selected = pos;
+  renderAll();
+  toast("Created. It starts in debug only — publish it further when ready.");
+  document.querySelector(".langgrid input")?.focus();
+}
+
+function moveWithinVersion(dirn) {
+  const a = source.announcements[selected];
+  if (!a) return;
+  const list = source.announcements;
+  let j = selected + dirn;
+  while (j >= 0 && j < list.length && list[j].versionCode !== a.versionCode) j += dirn;
+  if (j < 0 || j >= list.length) { toast("Already " + (dirn < 0 ? "first" : "last") + " in " + versionLabel(a.versionCode)); return; }
+  [list[selected], list[j]] = [list[j], list[selected]];
+  selected = j;
+  changed();
+}
+
+function duplicate() {
+  const a = source.announcements[selected];
+  if (!a) return;
+  const copy = structuredClone(a);
+  copy.id = uniqueId(a.id + "_copy");
+  copy.variants = ["debug"];
+  source.announcements.splice(selected + 1, 0, copy);
+  selected += 1;
+  renderAll();
+  toast("Duplicated as " + copy.id + " (debug only).");
+}
+
+async function del() {
+  const a = source.announcements[selected];
+  if (!a || !(await ask({ title: "Delete announcement?", message: `"${a.title.en || a.id}" is removed from every environment when you save. Git keeps the history.`, ok: "Delete", danger: true }))) return;
+  source.announcements.splice(selected, 1);
+  selected = source.announcements.length ? sortedIndexes()[0] : -1;
+  renderAll();
+}
+
+$("btnOpen").addEventListener("click", openRepo);
+$("btnSave").addEventListener("click", saveRepo);
+$("btnDownload").addEventListener("click", download);
+$("btnNew").addEventListener("click", newAnnouncement);
+$("btnUp").addEventListener("click", () => moveWithinVersion(-1));
+$("btnDown").addEventListener("click", () => moveWithinVersion(1));
+$("btnDup").addEventListener("click", duplicate);
+$("btnDel").addEventListener("click", del);
+$("btnCopy").addEventListener("click", async () => { try { await navigator.clipboard.writeText(generate(source)[outVariant]); toast("Copied " + outputPath(outVariant)); } catch (e) { toast("Copy failed: " + e.message); } });
+document.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "s") { e.preventDefault(); if (!$("btnSave").disabled) saveRepo(); } });
+if (!window.showDirectoryPicker) { $("btnOpen").disabled = true; $("btnOpen").title = "Needs Chrome or Edge"; }
+
+recallFolder().then((h) => {
+  remembered = h || null;
+  if (remembered) { $("btnOpen").textContent = `Reconnect ${remembered.name}`; $("btnOpen").title = "Reconnect to the folder you used last time"; }
+  // From disk the browser cannot read the repo files without the folder, so skip the fetch.
+  if (location.protocol === "file:") { if (!initialLoadSuperseded()) setSource({ announcements: [] }, "nothing yet — open the repo folder to load"); }
+  else loadFromSite();
+});
+</script>
+</body>
+</html>

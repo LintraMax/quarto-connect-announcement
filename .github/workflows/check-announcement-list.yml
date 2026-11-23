@@ -1,0 +1,25 @@
+name: Check announcement list
+
+# Fails when src/announcement_list.json is invalid, or when the generated
+# api/*/announcement_list_v1.json files were not rebuilt / were edited by hand.
+on:
+  push:
+    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcement-list.yml"]
+  pull_request:
+    paths: ["src/**", "api/**", "scripts/**", ".github/workflows/check-announcement-list.yml"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate source and check generated files are up to date
+        run: node scripts/build.js --check
+      - name: Check every api JSON file parses
+        run: |
+          for f in api/*/*.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || { echo "Invalid JSON: $f"; exit 1; }
+          done
